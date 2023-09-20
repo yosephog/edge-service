@@ -8,7 +8,8 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
+import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
 class EdgeServiceApplicationTests {
@@ -20,17 +21,18 @@ class EdgeServiceApplicationTests {
 
 	 **/
 	private static final int REDIS_PORT = 6379;
+
 	@Container
-	static GenericContainer<?> redis =
-			new GenericContainer<>(DockerImageName.parse("redis:7.0"))
-					.withExposedPorts(REDIS_PORT);
+	static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7.0"))
+			.withExposedPorts(REDIS_PORT);
+
+	@MockBean
+	ReactiveClientRegistrationRepository clientRegistrationRepository;
 
 	@DynamicPropertySource
 	static void redisProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.redis.host",
-				() -> redis.getHost());
-		registry.add("spring.redis.port",
-				() -> redis.getMappedPort(REDIS_PORT));
+		registry.add("spring.redis.host", () -> redis.getHost());
+		registry.add("spring.redis.port", () -> redis.getMappedPort(REDIS_PORT));
 	}
 
 	@Test
